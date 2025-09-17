@@ -58,7 +58,6 @@ export default function HomeScreen() {
               <Image 
                 source={{ uri: user.profilePicture }} 
                 style={styles.profileImage}
-                placeholder={<Ionicons name="person" size={20} color="#6B7280" />}
               />
             ) : (
               <View style={styles.profileImage}>
