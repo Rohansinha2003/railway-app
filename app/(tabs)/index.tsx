@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import NotificationPopup from '@/components/NotificationPopup';
 
 export default function HomeScreen() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
 
   const handleQRScan = () => {
@@ -39,6 +39,16 @@ export default function HomeScreen() {
 
   const handleNavigationCard = (card: string) => {
     Alert.alert(card, `Navigate to ${card}`);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('http://localhost:4000/api/logout', { method: 'POST' });
+      await logout();
+      router.replace('/login');
+    } catch (e) {
+      // Optionally handle error
+    }
   };
 
   return (
@@ -152,6 +162,11 @@ export default function HomeScreen() {
         onClose={() => setShowNotifications(false)}
         onViewAll={handleViewAllNotifications}
       />
+
+      {/* Logout Button */}
+      <TouchableOpacity onPress={handleLogout} style={{position: 'absolute', top: 40, right: 20, zIndex: 10}}>
+        <Ionicons name="log-out-outline" size={24} color="#374151" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
