@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { router } from 'expo-router';
 import QRScanner from '@/components/QRScanner';
 
 export default function QRScannerScreen() {
-  const [isScanning, setIsScanning] = useState(true);
 
   const handleScan = (data: string) => {
     console.log('QR Code scanned:', data);
@@ -16,7 +15,7 @@ export default function QRScannerScreen() {
       [
         {
           text: 'Scan Another',
-          onPress: () => setIsScanning(true),
+          onPress: () => console.log('Scan another'),
         },
         {
           text: 'Done',

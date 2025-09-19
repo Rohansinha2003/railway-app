@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
+import { router } from 'expo-router';
+import Constants from 'expo-constants';
 
+// Interfaces (kept outside runtime code, safe for TS)
 interface User {
   id: string;
   email: string;
@@ -13,8 +16,8 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<boolean>;
-  logout: () => Promise<void>;
   loginAsGuest: () => void;
+  logout: () => Promise<void>;
   updateProfile: (updates: Partial<User>) => Promise<void>;
 }
 
@@ -23,6 +26,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 interface AuthProviderProps {
   children: ReactNode;
 }
+
+// Use Expo config extras for environment variables
+const API_URL =
+  (Constants.expoConfig?.extra?.API_URL as string) || 'http://192.168.29.134:4000'; // Your network IP
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
@@ -34,9 +41,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const checkAuthState = async () => {
     try {
-      const storedUser = await AsyncStorage.getItem('user');
-      if (storedUser) {
+      const storedUser = await SecureStore.getItemAsync('user');
+      const token = await SecureStore.getItemAsync('token');
+      if (storedUser && token) {
         setUser(JSON.parse(storedUser));
+      } else {
+        setUser(null);
       }
     } catch (error) {
       console.error('Error checking auth state:', error);
@@ -48,24 +58,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       setIsLoading(true);
-      
-      // Simulate API call - in real app, this would be an actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // For demo purposes, accept any non-empty credentials
-      if (email.trim() && password.trim()) {
-        const userData: User = {
-          id: '1',
-          email: email.trim(),
-          name: email.split('@')[0],
-        };
-        
+
+      // Make sure this matches your backend: { username, password }
+      const res = await fetch(`${API_URL}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: email, password }),
+      });
+
+      if (res.ok) {
+        const { token, user: userData } = await res.json();
+        if (!userData.id) userData.id = email;
         setUser(userData);
-        await AsyncStorage.setItem('user', JSON.stringify(userData));
+        await SecureStore.setItemAsync('user', JSON.stringify(userData));
+        await SecureStore.setItemAsync('token', token);
         return true;
+      } else {
+        const errorData = await res.json().catch(() => null);
+        console.error('Login failed:', errorData);
+        return false;
       }
-      
-      return false;
     } catch (error) {
       console.error('Login error:', error);
       return false;
@@ -76,9 +88,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = async () => {
     try {
+      await SecureStore.deleteItemAsync('token');
+      await SecureStore.deleteItemAsync('user');
       setUser(null);
-      await AsyncStorage.removeItem('user');
-      // The navigation will be handled by the layout component
+      router.replace('/login'); // This ensures navigation to login
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -98,20 +111,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (user) {
         const updatedUser = { ...user, ...updates };
         setUser(updatedUser);
-        await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+        await SecureStore.setItemAsync('user', JSON.stringify(updatedUser));
       }
     } catch (error) {
       console.error('Error updating profile:', error);
     }
   };
 
-  const value: AuthContextType = {
+  const value = {
     user,
     isLoading,
     isAuthenticated: !!user,
     login,
-    logout,
     loginAsGuest,
+    logout,
     updateProfile,
   };
 
@@ -125,3 +138,7 @@ export function useAuth() {
   }
   return context;
 }
+
+
+
+

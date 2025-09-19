@@ -12,8 +12,22 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
+type NotificationSettings = {
+  allNotifications: boolean;
+  inspectionReminders: boolean;
+  maintenanceAlerts: boolean;
+  issueReports: boolean;
+  systemUpdates: boolean;
+  weeklyReports: boolean;
+  emergencyAlerts: boolean;
+  qrScanNotifications: boolean;
+  pushNotifications: boolean;
+  emailNotifications: boolean;
+  smsNotifications: boolean;
+};
+
 export default function NotificationsScreen() {
-  const [notifications, setNotifications] = useState({
+  const [notifications, setNotifications] = useState<NotificationSettings>({
     allNotifications: true,
     inspectionReminders: true,
     maintenanceAlerts: true,
@@ -27,7 +41,7 @@ export default function NotificationsScreen() {
     smsNotifications: false,
   });
 
-  const handleToggle = (key: string) => {
+  const handleToggle = (key: keyof NotificationSettings) => {
     setNotifications(prev => ({
       ...prev,
       [key]: !prev[key]

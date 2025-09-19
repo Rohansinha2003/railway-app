@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { Image } from 'expo-image';
-import { Platform, StyleSheet, TouchableOpacity, Alert, ScrollView, View, Text } from 'react-native';
+import { StyleSheet, TouchableOpacity, Alert, ScrollView, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Constants from 'expo-constants';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import NotificationPopup from '@/components/NotificationPopup';
+
+const API_URL =
+  (Constants.expoConfig?.extra?.API_URL as string) || 'http://192.168.1.5:4000'; // Replace with your LAN IP
 
 export default function HomeScreen() {
   const { user, logout } = useAuth();
@@ -34,7 +34,19 @@ export default function HomeScreen() {
   };
 
   const handleMetricPress = (metric: string) => {
-    Alert.alert(metric, `View details for ${metric}`);
+    switch (metric) {
+      case 'Tracked':
+        router.push('/tracked');
+        break;
+      case 'Active Issues':
+        router.push('/active-issues');
+        break;
+      case 'Maintenance':
+        router.push('/maintenance');
+        break;
+      default:
+        Alert.alert(metric, `View details for ${metric}`);
+    }
   };
 
   const handleNavigationCard = (card: string) => {
@@ -43,11 +55,11 @@ export default function HomeScreen() {
 
   const handleLogout = async () => {
     try {
-      await fetch('http://localhost:4000/api/logout', { method: 'POST' });
-      await logout();
-      router.replace('/login');
-    } catch (e) {
-      // Optionally handle error
+      await fetch(`${API_URL}/api/logout`, { method: 'POST' });
+      await logout(); // logout() should clear token and redirect to /login
+      // Do NOT call router.replace('/login') here if logout() already does it
+    } catch {
+      Alert.alert('Logout failed', 'Please try again.');
     }
   };
 

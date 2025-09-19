@@ -11,10 +11,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function SettingsScreen() {
+  const { isDarkMode, toggleTheme, colors } = useTheme();
   const [settings, setSettings] = useState({
-    darkMode: false,
     autoSync: true,
     locationTracking: true,
     biometricAuth: false,
@@ -31,6 +32,10 @@ export default function SettingsScreen() {
     }));
   };
 
+  const handleDarkModeToggle = () => {
+    toggleTheme();
+  };
+
   const handleResetSettings = () => {
     Alert.alert(
       'Reset Settings',
@@ -42,7 +47,6 @@ export default function SettingsScreen() {
           style: 'destructive',
           onPress: () => {
             setSettings({
-              darkMode: false,
               autoSync: true,
               locationTracking: true,
               biometricAuth: false,
@@ -73,14 +77,14 @@ export default function SettingsScreen() {
     onToggle?: () => void;
     type?: 'toggle' | 'navigation';
   }) => (
-    <View style={styles.settingItem}>
+    <View style={[styles.settingItem, { backgroundColor: colors.background, borderBottomColor: isDarkMode ? '#374151' : '#F3F4F6' }]}>
       <View style={styles.settingLeft}>
-        <View style={styles.iconContainer}>
-          <Ionicons name={icon as any} size={20} color="#1E40AF" />
+        <View style={[styles.iconContainer, { backgroundColor: isDarkMode ? '#1E40AF' : '#EBF4FF' }]}>
+          <Ionicons name={icon as any} size={20} color={isDarkMode ? 'white' : '#1E40AF'} />
         </View>
         <View style={styles.settingText}>
-          <Text style={styles.settingTitle}>{title}</Text>
-          {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
+          <Text style={[styles.settingTitle, { color: colors.text }]}>{title}</Text>
+          {subtitle && <Text style={[styles.settingSubtitle, { color: colors.icon }]}>{subtitle}</Text>}
         </View>
       </View>
       <View style={styles.settingRight}>
@@ -88,43 +92,43 @@ export default function SettingsScreen() {
           <Switch
             value={value}
             onValueChange={onToggle}
-            trackColor={{ false: '#E5E7EB', true: '#1E40AF' }}
+            trackColor={{ false: isDarkMode ? '#374151' : '#E5E7EB', true: '#1E40AF' }}
             thumbColor={value ? 'white' : '#9CA3AF'}
           />
         ) : (
-          <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
+          <Ionicons name="chevron-forward" size={16} color={colors.icon} />
         )}
       </View>
     </View>
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: isDarkMode ? '#374151' : '#E5E7EB' }]}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#374151" />
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Settings</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Settings</Text>
           <View style={styles.placeholder} />
         </View>
 
         {/* Appearance Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Appearance</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text, backgroundColor: isDarkMode ? '#1F2937' : '#F9FAFB' }]}>Appearance</Text>
           <SettingItem
             icon="moon-outline"
             title="Dark Mode"
             subtitle="Switch to dark theme"
-            value={settings.darkMode}
-            onToggle={() => handleToggle('darkMode')}
+            value={isDarkMode}
+            onToggle={handleDarkModeToggle}
           />
         </View>
 
         {/* Sync & Data Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Sync & Data</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text, backgroundColor: isDarkMode ? '#1F2937' : '#F9FAFB' }]}>Sync & Data</Text>
           <SettingItem
             icon="sync-outline"
             title="Auto Sync"
@@ -143,7 +147,7 @@ export default function SettingsScreen() {
 
         {/* Security Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Security</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text, backgroundColor: isDarkMode ? '#1F2937' : '#F9FAFB' }]}>Security</Text>
           <SettingItem
             icon="finger-print-outline"
             title="Biometric Authentication"
@@ -155,7 +159,7 @@ export default function SettingsScreen() {
 
         {/* Notifications Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Notifications</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text, backgroundColor: isDarkMode ? '#1F2937' : '#F9FAFB' }]}>Notifications</Text>
           <SettingItem
             icon="notifications-outline"
             title="Push Notifications"
@@ -174,7 +178,7 @@ export default function SettingsScreen() {
 
         {/* Accessibility Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Accessibility</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text, backgroundColor: isDarkMode ? '#1F2937' : '#F9FAFB' }]}>Accessibility</Text>
           <SettingItem
             icon="volume-high-outline"
             title="Sound Effects"
@@ -193,7 +197,7 @@ export default function SettingsScreen() {
 
         {/* Advanced Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Advanced</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text, backgroundColor: isDarkMode ? '#1F2937' : '#F9FAFB' }]}>Advanced</Text>
           <SettingItem
             icon="language-outline"
             title="Language"
@@ -216,7 +220,7 @@ export default function SettingsScreen() {
 
         {/* Reset Section */}
         <View style={styles.section}>
-          <TouchableOpacity style={styles.resetButton} onPress={handleResetSettings}>
+          <TouchableOpacity style={[styles.resetButton, { backgroundColor: colors.background, borderColor: isDarkMode ? '#374151' : '#FEE2E2' }]} onPress={handleResetSettings}>
             <Ionicons name="refresh-outline" size={20} color="#EF4444" />
             <Text style={styles.resetButtonText}>Reset All Settings</Text>
           </TouchableOpacity>
@@ -229,7 +233,6 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
   },
   scrollView: {
     flex: 1,
@@ -241,9 +244,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 20,
-    backgroundColor: 'white',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
   },
   backButton: {
     padding: 8,
@@ -251,7 +252,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1F2937',
   },
   placeholder: {
     width: 40,
@@ -262,10 +262,8 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#374151',
     paddingHorizontal: 20,
     paddingVertical: 12,
-    backgroundColor: '#F9FAFB',
   },
   settingItem: {
     flexDirection: 'row',
@@ -273,9 +271,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: 'white',
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
   },
   settingLeft: {
     flexDirection: 'row',
@@ -286,7 +282,6 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#EBF4FF',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -297,12 +292,10 @@ const styles = StyleSheet.create({
   settingTitle: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#1F2937',
     marginBottom: 2,
   },
   settingSubtitle: {
     fontSize: 14,
-    color: '#6B7280',
   },
   settingRight: {
     marginLeft: 12,
@@ -313,10 +306,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 16,
     marginHorizontal: 20,
-    backgroundColor: 'white',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#FEE2E2',
   },
   resetButtonText: {
     fontSize: 16,
