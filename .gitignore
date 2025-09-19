@@ -1,0 +1,36 @@
+# React Native
+
+# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Logs
+*.log
+*.tmp
+*.swp
+
+# Metro bundler
+.expo/
+.expo-shared/
+dist/
+bundle.js
+*.packager
+
+# React Native specific
+ios/build/
+android/app/build/
+android/.gradle/
+android/.idea/
+android/local.properties
+android/.settings/
+android/*.iml
+ios/Pods/
+ios/Podfile.lock
+ios/Podfile
+ios/*.xcworkspace
+ios/*.xcuserstate
+ios/*/xcuserdata
+ios/*/build*
